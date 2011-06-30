@@ -1,5 +1,6 @@
 package uk.co.gidley.clockRadio;
 
+import uk.co.gidley.clockRadio.RadioStationsList.OnSelectStationListener;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -14,7 +15,7 @@ import android.widget.Button;
 
 import com.flurry.android.FlurryAgent;
 
-public class ClockRadioActivity extends Activity {
+public class ClockRadioActivity extends Activity implements OnSelectStationListener {
 
 	@Override
 	protected void onStart() {
@@ -91,6 +92,8 @@ public class ClockRadioActivity extends Activity {
 		}
 	};
 
+	private String stationUri;
+
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -127,6 +130,12 @@ public class ClockRadioActivity extends Activity {
 			unbindService(mConnection);
 			mBound = false;
 		}
+	}
+
+	public void onSelectStationListener(String stationUri) {
+		
+		this.stationUri = stationUri;
+		
 	}
 
 }

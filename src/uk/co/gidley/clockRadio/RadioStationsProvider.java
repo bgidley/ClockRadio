@@ -57,7 +57,7 @@ public class RadioStationsProvider extends ContentProvider {
 		/**
 		 * 
 		 * Creates the underlying database with table name and column names
-		 * taken from the NotePad class.
+		 * taken from the RadioStations class.
 		 */
 		@Override
 		public void onCreate(SQLiteDatabase db) {
@@ -230,7 +230,7 @@ public class RadioStationsProvider extends ContentProvider {
 		}
 
 		Cursor c = qb.query(mOpenHelper.getReadableDatabase(), projection,
-				selection, selectionArgs, null, null, sortOrder);
+				selection, selectionArgs, null, null, orderBy);
 		c.setNotificationUri(getContext().getContentResolver(), uri);
 		return c;
 

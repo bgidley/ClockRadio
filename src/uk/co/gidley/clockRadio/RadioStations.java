@@ -35,7 +35,7 @@ public class RadioStations {
 
 	public static final String URL = "url";
 
-	public static final String DEFAULT_SORT_ORDER = "id DESC";
+	public static final String DEFAULT_SORT_ORDER = "_id DESC";
 
 	public static final Uri CONTENT_ID_URI_BASE = Uri.parse(SCHEME + AUTHORITY + STATIONS_PATH_ID);
 }
