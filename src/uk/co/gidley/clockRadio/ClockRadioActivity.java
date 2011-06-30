@@ -5,18 +5,28 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.SimpleCursorAdapter;
-import android.widget.VideoView;
+
+import com.flurry.android.FlurryAgent;
 
 public class ClockRadioActivity extends Activity {
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		FlurryAgent.onStartSession(this, "AWYQTHVF81ERH8HVUP9V");
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		FlurryAgent.onEndSession(this);
+	}
 
 	private static final String TAG = "ClockRadioActivity";
 
