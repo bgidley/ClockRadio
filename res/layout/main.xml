@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+<TextView  
+    android:layout_width="fill_parent" 
+    android:layout_height="wrap_content" 
+    android:text="@string/hello"
+    /> 
+    
+    <DigitalClock android:id="@+id/digitalClock1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentLeft="true" android:text="DigitalClock" android:layout_centerHorizontal="true"></DigitalClock>
+    <Button android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/start" android:layout_below="@+id/digitalClock1" android:layout_alignLeft="@+id/digitalClock1" android:text="@string/start"></Button>
+    <Button android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/refreshStations" android:text="@string/refreshStations"></Button>
+    <Button android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_toRightOf="@+id/start" android:layout_alignTop="@+id/start" android:layout_alignBottom="@+id/start" android:id="@+id/stop" android:text="@string/stop"></Button>
+    
+    <TimePicker android:layout_height="wrap_content" android:id="@+id/sleepTime" android:layout_width="wrap_content" android:layout_below="@+id/start" android:layout_alignLeft="@+id/start"></TimePicker>
+    <fragment android:name="uk.co.gidley.clockRadio.RadioStationsList" android:id="@+id/stationList" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+
+</LinearLayout>
