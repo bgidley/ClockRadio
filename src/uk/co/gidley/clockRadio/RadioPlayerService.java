@@ -2,7 +2,17 @@ package uk.co.gidley.clockRadio;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 import uk.co.gidley.clockRadio.R;
 
@@ -19,6 +29,8 @@ import android.util.Log;
 public class RadioPlayerService extends Service {
 
 	private static final String TAG = "RadioPlayerService";
+
+	public static final String STOP = "STOP";
 
 	private final IBinder mBinder = new LocalBinder();
 	private NotificationManager mNM;
@@ -105,15 +117,23 @@ public class RadioPlayerService extends Service {
 		Log.d(TAG, "Show Notification Complete");
 	}
 
-	public void play() {
+	public void play(String playerUri) {
 
 		if (mp != null && mp.isPlaying()) {
 			stop();
 		}
 
+		// The uri could be a playlist file OR an actual stream check based on file extension (TODO review if better way of doing this)
+		String audioUri;
+		if (playerUri.endsWith(".pls")){
+			audioUri = parsePls(playerUri);
+		} else {
+			audioUri = playerUri;
+		}
+		
 		mp = new MediaPlayer();
 		try {
-			mp.setDataSource("http://bbcmedia.ic.llnwd.net/stream/bbcmedia_he2_radio4_q?s=1309175586&e=1309189986&h=6a24b347bfa199ab083ae4d3582150c4");
+			mp.setDataSource(audioUri);
 			mp.prepare();
 			mp.start();
 			showNotification();
@@ -124,6 +144,33 @@ public class RadioPlayerService extends Service {
 		} catch (IOException e) {
 			Log.e(TAG, "Unable to open stream", e);
 		}
+	}
+
+	private String parsePls(String playerUri) {
+		HttpClient httpclient = new DefaultHttpClient();
+
+			try {
+				HttpURLConnection urlConnection;
+				HttpGet httpGet = new HttpGet(playerUri);
+				HttpResponse response = httpclient.execute(httpGet);
+				InputStream in = response.getEntity().getContent();
+				BufferedReader reader = new BufferedReader(
+						new InputStreamReader(in));
+				String line;
+				while ((line = reader.readLine()) != null){
+					if (line.startsWith("File")){
+						// Just find the first file referenced and return it
+						return line.substring(line.indexOf("=")+1);
+					}
+				}
+			} catch (ClientProtocolException e) {
+				Log.e(TAG, "Unable to load playlist", e);
+			} catch (IllegalStateException e) {
+				Log.e(TAG, "Unable to load playlist", e);
+			} catch (IOException e) {
+				Log.e(TAG, "Unable to load playlist", e);
+			} 
+		return null;
 	}
 
 	public void stop() {

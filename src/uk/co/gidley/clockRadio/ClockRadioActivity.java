@@ -1,7 +1,11 @@
 package uk.co.gidley.clockRadio;
 
+import java.util.Calendar;
+
 import uk.co.gidley.clockRadio.RadioStationsList.OnSelectStationListener;
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.TimePicker;
 
 import com.flurry.android.FlurryAgent;
 
@@ -33,6 +38,31 @@ public class ClockRadioActivity extends Activity implements OnSelectStationListe
 
 	private RadioPlayerService mRadioPlayerService;
 	boolean mBound;
+	
+	private OnClickListener mOnClickSleepListener = new OnClickListener() {
+		public void onClick(View v) {
+			new Thread(new Runnable() {
+				public void run() {
+					// Read the stop time NOTE current doesn't handle going passed midnight.
+					Calendar stopTime = Calendar.getInstance();
+					TimePicker timePicker = (TimePicker) findViewById(R.id.sleepTime);
+					stopTime.set(Calendar.HOUR, timePicker.getCurrentHour());
+					stopTime.set(Calendar.MINUTE, timePicker.getCurrentMinute());
+					
+					Intent sleepTime = new Intent(getBaseContext(), SleepTimerReciever.class);
+					
+					PendingIntent stopTimePending = PendingIntent.getBroadcast(getBaseContext(),
+				            0, sleepTime, PendingIntent.FLAG_CANCEL_CURRENT);
+				    AlarmManager alarms = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+				    alarms.set(AlarmManager.RTC,
+				            stopTime.getTimeInMillis(),
+				            stopTimePending);
+					// 
+				}
+			}).start();
+			
+		}
+	};
 
 	private OnClickListener mOnPlayListener = new OnClickListener() {
 		public void onClick(View v) {
@@ -40,7 +70,7 @@ public class ClockRadioActivity extends Activity implements OnSelectStationListe
 			clicked.setText(R.string.loading);
 			new Thread(new Runnable() {
 				public void run() {
-					mRadioPlayerService.play();
+					mRadioPlayerService.play(stationUri);
 					clicked.post(new Runnable() {
 						public void run() {
 							clicked.setText(R.string.playing);
@@ -105,12 +135,8 @@ public class ClockRadioActivity extends Activity implements OnSelectStationListe
 		playButton.setOnClickListener(mOnPlayListener);
 		Button stopButton = (Button) findViewById(R.id.stop);
 		stopButton.setOnClickListener(mOnStopListener);
-		
 		Button refreshStations = (Button) findViewById(R.id.refreshStations);
 		refreshStations.setOnClickListener(mRefreshVideoListener);
-
-
-
 	}
 
 	void doBindService() {

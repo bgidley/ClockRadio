@@ -16,6 +16,7 @@
     <Button android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_toRightOf="@+id/start" android:layout_alignTop="@+id/start" android:layout_alignBottom="@+id/start" android:id="@+id/stop" android:text="@string/stop"></Button>
     
     <TimePicker android:layout_height="wrap_content" android:id="@+id/sleepTime" android:layout_width="wrap_content" android:layout_below="@+id/start" android:layout_alignLeft="@+id/start"></TimePicker>
+    <Button android:layout_height="wrap_content" android:text="@string/sleep" android:layout_width="wrap_content" android:id="@+id/sleepTimer"></Button>
     <fragment android:name="uk.co.gidley.clockRadio.RadioStationsList" android:id="@+id/stationList" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 
 </LinearLayout>

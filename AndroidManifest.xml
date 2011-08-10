@@ -19,5 +19,6 @@
         <provider android:name="RadioStationsProvider" android:authorities="uk.co.gidley.clockradio.radiostationsprovider">
         </provider>
         <service android:name="StationsListService"></service>
+        <receiver android:name="SleepTimerReciever"></receiver>
     </application>
 </manifest>
