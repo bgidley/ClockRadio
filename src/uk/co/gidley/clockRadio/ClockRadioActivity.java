@@ -52,10 +52,16 @@ public class ClockRadioActivity extends Activity implements
 					// Read the stop time NOTE current doesn't handle going
 					// passed midnight.
 					Calendar stopTime = Calendar.getInstance();
+					
 					TimePicker timePicker = (TimePicker) findViewById(R.id.sleepTime);
 					stopTime.set(Calendar.HOUR, timePicker.getCurrentHour());
 					stopTime.set(Calendar.MINUTE, timePicker.getCurrentMinute());
-
+					stopTime.set(Calendar.SECOND, 0);
+					if (stopTime.before(Calendar.getInstance())){
+						stopTime.roll(Calendar.DAY_OF_MONTH, 1);
+					}
+					
+					
 					Intent sleepTime = new Intent(getBaseContext(),
 							SleepTimerReciever.class);
 
@@ -65,7 +71,7 @@ public class ClockRadioActivity extends Activity implements
 					AlarmManager alarms = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 					alarms.set(AlarmManager.RTC, stopTime.getTimeInMillis(),
 							stopTimePending);
-					Log.d(TAG, "Alarm created: " + stopTime);
+					Log.d(TAG, "Alarm created: " + stopTime.getTime());
 				}
 			}).start();
 
