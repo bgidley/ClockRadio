@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -53,7 +54,7 @@ public class RadioPlayerService extends Service {
 		propertyChangeSupport.firePropertyChange("State", tmpState, state);
 	}
 
-	private enum State {
+	public enum State {
 		PLAYING, STOPPED, LOADING
 	}
 
@@ -117,59 +118,92 @@ public class RadioPlayerService extends Service {
 		Log.d(TAG, "Show Notification Complete");
 	}
 
-	public void play(String playerUri) {
+	public void play(String playerUri) throws UnableToPlayException {
+		
+		setState(State.LOADING);
+
+		if (StringUtils.isEmpty(playerUri)) {
+			setState(State.STOPPED);
+			throw new UnableToPlayException();
+		}
 
 		if (mp != null && mp.isPlaying()) {
 			stop();
 		}
 
-		// The uri could be a playlist file OR an actual stream check based on file extension (TODO review if better way of doing this)
+		// The uri could be a playlist file OR an actual stream check based on
+		// file extension (TODO review if better way of doing this)
 		String audioUri;
-		if (playerUri.endsWith(".pls")){
+		if (playerUri.endsWith(".pls")) {
 			audioUri = parsePls(playerUri);
 		} else {
 			audioUri = playerUri;
 		}
-		
+
+		if (StringUtils.isEmpty(audioUri)) {
+			setState(State.STOPPED);
+			throw new UnableToPlayException();
+		}
+		Log.d(TAG, "Audio URL:" + audioUri);
+
 		mp = new MediaPlayer();
 		try {
 			mp.setDataSource(audioUri);
 			mp.prepare();
 			mp.start();
+			setState(State.PLAYING);
 			showNotification();
 		} catch (IllegalArgumentException e) {
+			setState(State.STOPPED);
 			Log.e(TAG, "Unable to open stream", e);
 		} catch (IllegalStateException e) {
+			setState(State.STOPPED);
 			Log.e(TAG, "Unable to open stream", e);
 		} catch (IOException e) {
+			setState(State.STOPPED);
 			Log.e(TAG, "Unable to open stream", e);
 		}
+	}
+
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+
+		if (intent != null) {
+			Log.d(TAG,
+					"Recieved start command stop is"
+							+ intent.getBooleanExtra(STOP, false));
+
+			if (intent.getBooleanExtra(STOP, false)) {
+				this.stop();
+			}
+		}
+		return super.onStartCommand(intent, flags, startId);
 	}
 
 	private String parsePls(String playerUri) {
 		HttpClient httpclient = new DefaultHttpClient();
 
-			try {
-				HttpURLConnection urlConnection;
-				HttpGet httpGet = new HttpGet(playerUri);
-				HttpResponse response = httpclient.execute(httpGet);
-				InputStream in = response.getEntity().getContent();
-				BufferedReader reader = new BufferedReader(
-						new InputStreamReader(in));
-				String line;
-				while ((line = reader.readLine()) != null){
-					if (line.startsWith("File")){
-						// Just find the first file referenced and return it
-						return line.substring(line.indexOf("=")+1);
-					}
+		try {
+			HttpURLConnection urlConnection;
+			HttpGet httpGet = new HttpGet(playerUri);
+			HttpResponse response = httpclient.execute(httpGet);
+			InputStream in = response.getEntity().getContent();
+			BufferedReader reader = new BufferedReader(
+					new InputStreamReader(in));
+			String line;
+			while ((line = reader.readLine()) != null) {
+				if (line.startsWith("File")) {
+					// Just find the first file referenced and return it
+					return line.substring(line.indexOf("=") + 1);
 				}
-			} catch (ClientProtocolException e) {
-				Log.e(TAG, "Unable to load playlist", e);
-			} catch (IllegalStateException e) {
-				Log.e(TAG, "Unable to load playlist", e);
-			} catch (IOException e) {
-				Log.e(TAG, "Unable to load playlist", e);
-			} 
+			}
+		} catch (ClientProtocolException e) {
+			Log.e(TAG, "Unable to load playlist", e);
+		} catch (IllegalStateException e) {
+			Log.e(TAG, "Unable to load playlist", e);
+		} catch (IOException e) {
+			Log.e(TAG, "Unable to load playlist", e);
+		}
 		return null;
 	}
 
@@ -178,5 +212,7 @@ public class RadioPlayerService extends Service {
 		mp.release();
 		mp = null;
 		stopForeground(true);
+		
+		setState(State.STOPPED);
 	}
 }

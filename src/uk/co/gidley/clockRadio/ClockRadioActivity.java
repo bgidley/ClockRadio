@@ -1,5 +1,7 @@
 package uk.co.gidley.clockRadio;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Calendar;
 
 import uk.co.gidley.clockRadio.RadioStationsList.OnSelectStationListener;
@@ -17,10 +19,12 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.flurry.android.FlurryAgent;
 
-public class ClockRadioActivity extends Activity implements OnSelectStationListener {
+public class ClockRadioActivity extends Activity implements
+		OnSelectStationListener {
 
 	@Override
 	protected void onStart() {
@@ -38,49 +42,55 @@ public class ClockRadioActivity extends Activity implements OnSelectStationListe
 
 	private RadioPlayerService mRadioPlayerService;
 	boolean mBound;
-	
+
 	private OnClickListener mOnClickSleepListener = new OnClickListener() {
 		public void onClick(View v) {
 			new Thread(new Runnable() {
 				public void run() {
-					// Read the stop time NOTE current doesn't handle going passed midnight.
+
+					Log.d(TAG, "Started creating sleep event");
+					// Read the stop time NOTE current doesn't handle going
+					// passed midnight.
 					Calendar stopTime = Calendar.getInstance();
 					TimePicker timePicker = (TimePicker) findViewById(R.id.sleepTime);
 					stopTime.set(Calendar.HOUR, timePicker.getCurrentHour());
 					stopTime.set(Calendar.MINUTE, timePicker.getCurrentMinute());
-					
-					Intent sleepTime = new Intent(getBaseContext(), SleepTimerReciever.class);
-					
-					PendingIntent stopTimePending = PendingIntent.getBroadcast(getBaseContext(),
-				            0, sleepTime, PendingIntent.FLAG_CANCEL_CURRENT);
-				    AlarmManager alarms = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-				    alarms.set(AlarmManager.RTC,
-				            stopTime.getTimeInMillis(),
-				            stopTimePending);
-					// 
+
+					Intent sleepTime = new Intent(getBaseContext(),
+							SleepTimerReciever.class);
+
+					PendingIntent stopTimePending = PendingIntent.getBroadcast(
+							getBaseContext(), 0, sleepTime,
+							PendingIntent.FLAG_CANCEL_CURRENT);
+					AlarmManager alarms = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+					alarms.set(AlarmManager.RTC, stopTime.getTimeInMillis(),
+							stopTimePending);
+					Log.d(TAG, "Alarm created: " + stopTime);
 				}
 			}).start();
-			
+
 		}
 	};
 
 	private OnClickListener mOnPlayListener = new OnClickListener() {
 		public void onClick(View v) {
-			final Button clicked = (Button) v;
-			clicked.setText(R.string.loading);
 			new Thread(new Runnable() {
 				public void run() {
-					mRadioPlayerService.play(stationUri);
-					clicked.post(new Runnable() {
-						public void run() {
-							clicked.setText(R.string.playing);
-						}
-					});
+					try {
+						mRadioPlayerService.play(stationUri);						
+					} catch (UnableToPlayException e) {
+						runOnUiThread(new Runnable() {
+							public void run() {
+								Toast.makeText(getBaseContext(), "Unable to play",
+										Toast.LENGTH_SHORT);	
+							}
+						});
+					}
 				}
 			}).start();
 		}
 	};
-	
+
 	private OnClickListener mRefreshVideoListener = new OnClickListener() {
 		public void onClick(View v) {
 			startService(new Intent(getBaseContext(), StationsListService.class));
@@ -93,12 +103,6 @@ public class ClockRadioActivity extends Activity implements OnSelectStationListe
 			new Thread(new Runnable() {
 				public void run() {
 					mRadioPlayerService.stop();
-					v.post(new Runnable() {
-						public void run() {
-							Button button = (Button) findViewById(R.id.start);
-							button.setText(R.string.start);
-						}
-					});
 				}
 			}).start();
 		}
@@ -114,11 +118,39 @@ public class ClockRadioActivity extends Activity implements OnSelectStationListe
 			mRadioPlayerService = ((RadioPlayerService.LocalBinder) service)
 					.getService();
 
+			mRadioPlayerService.addPropertyChangeListener(new PropertyChangeListener() {
+				public void propertyChange(PropertyChangeEvent event) {
+					if (event.getPropertyName().equals("State")){
+						final Button button = (Button) findViewById(R.id.start);
+						if (event.getNewValue().equals(RadioPlayerService.State.PLAYING)){
+							runOnUiThread(new Runnable() {
+								public void run() {
+									button.setText(R.string.stop);
+								}
+							});
+						} else if (event.getNewValue().equals(RadioPlayerService.State.LOADING)){
+							runOnUiThread(new Runnable() {
+								public void run() {
+									button.setText(R.string.loading);
+								}
+							});
+						} else if (event.getNewValue().equals(RadioPlayerService.State.STOPPED)){
+							runOnUiThread(new Runnable() {
+								public void run() {
+									button.setText(R.string.start);
+								}
+							});
+						}
+					}
+				}
+			});
+			
 			Log.d(TAG, "Bound Service");
 		}
 
 		public void onServiceDisconnected(ComponentName className) {
 			mRadioPlayerService = null;
+				
 		}
 	};
 
@@ -137,6 +169,8 @@ public class ClockRadioActivity extends Activity implements OnSelectStationListe
 		stopButton.setOnClickListener(mOnStopListener);
 		Button refreshStations = (Button) findViewById(R.id.refreshStations);
 		refreshStations.setOnClickListener(mRefreshVideoListener);
+		Button sleepButton = (Button) findViewById(R.id.sleepTimer);
+		sleepButton.setOnClickListener(mOnClickSleepListener);
 	}
 
 	void doBindService() {
@@ -148,6 +182,7 @@ public class ClockRadioActivity extends Activity implements OnSelectStationListe
 				RadioPlayerService.class), mConnection,
 				Context.BIND_AUTO_CREATE);
 		mBound = true;
+		
 	}
 
 	void doUnbindService() {
@@ -159,9 +194,7 @@ public class ClockRadioActivity extends Activity implements OnSelectStationListe
 	}
 
 	public void onSelectStationListener(String stationUri) {
-		
 		this.stationUri = stationUri;
-		
 	}
 
 }
