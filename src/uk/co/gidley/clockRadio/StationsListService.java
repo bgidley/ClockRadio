@@ -5,10 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -31,13 +29,11 @@ public class StationsListService extends Service {
 		protected Boolean doInBackground(URI... urls) {
 			Log.d(TAG, "Starting Background load");
 			int count = urls.length;
-			long totalSize = 0;
 			
 			HttpClient httpclient = new DefaultHttpClient();
 
 			for (int i = 0; i < count; i++) {
 				// Download stations and load into SQL lite
-				HttpURLConnection urlConnection;
 				try {
 					HttpGet httpGet = new HttpGet(urls[i]);
 					HttpResponse response = httpclient.execute(httpGet);

@@ -1,6 +1,5 @@
 package uk.co.gidley.clockRadio;
 
-import android.content.SyncAdapterType;
 import android.net.Uri;
 
 public class RadioStations {

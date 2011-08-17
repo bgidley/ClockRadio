@@ -12,11 +12,14 @@
     
     <DigitalClock android:id="@+id/digitalClock1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentLeft="true" android:text="DigitalClock" android:layout_centerHorizontal="true"></DigitalClock>
     <Button android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/start" android:layout_below="@+id/digitalClock1" android:layout_alignLeft="@+id/digitalClock1" android:text="@string/start"></Button>
-    <Button android:layout_height="wrap_content" android:layout_width="wrap_content" android:id="@+id/refreshStations" android:text="@string/refreshStations"></Button>
     <Button android:layout_height="wrap_content" android:layout_width="wrap_content" android:layout_toRightOf="@+id/start" android:layout_alignTop="@+id/start" android:layout_alignBottom="@+id/start" android:id="@+id/stop" android:text="@string/stop"></Button>
-    
-    <TimePicker android:layout_height="wrap_content" android:id="@+id/sleepTime" android:layout_width="wrap_content" android:layout_below="@+id/start" android:layout_alignLeft="@+id/start"></TimePicker>
-    <Button android:layout_height="wrap_content" android:text="@string/sleep" android:layout_width="wrap_content" android:id="@+id/sleepTimer"></Button>
-    <fragment android:name="uk.co.gidley.clockRadio.RadioStationsList" android:id="@+id/stationList" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+  
+  	<fragment android:name="uk.co.gidley.clockRadio.SleepTimer" android:id="@+id/sleepTimer" android:layout_width="wrap_content" android:layout_height="wrap_content">
+  	    <!-- Preview: layout=@layout/sleep_timer -->
+  	</fragment>  
+    <fragment android:name="uk.co.gidley.clockRadio.RadioStationsList" android:id="@+id/stationList" android:layout_width="wrap_content" android:layout_height="wrap_content">
+        <!-- Preview: layout=@layout/list_item -->
+    </fragment>
+    <Button android:text="@string/refreshStations" android:id="@+id/refreshStations" android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
 
 </LinearLayout>

@@ -119,7 +119,7 @@ public class RadioPlayerService extends Service {
 	}
 
 	public void play(String playerUri) throws UnableToPlayException {
-		
+
 		setState(State.LOADING);
 
 		if (StringUtils.isEmpty(playerUri)) {
@@ -165,26 +165,10 @@ public class RadioPlayerService extends Service {
 		}
 	}
 
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-
-		if (intent != null) {
-			Log.d(TAG,
-					"Recieved start command stop is"
-							+ intent.getBooleanExtra(STOP, false));
-
-			if (intent.getBooleanExtra(STOP, false)) {
-				this.stop();
-			}
-		}
-		return super.onStartCommand(intent, flags, startId);
-	}
-
 	private String parsePls(String playerUri) {
 		HttpClient httpclient = new DefaultHttpClient();
 
 		try {
-			HttpURLConnection urlConnection;
 			HttpGet httpGet = new HttpGet(playerUri);
 			HttpResponse response = httpclient.execute(httpGet);
 			InputStream in = response.getEntity().getContent();
@@ -208,11 +192,13 @@ public class RadioPlayerService extends Service {
 	}
 
 	public void stop() {
-		mp.stop();
-		mp.release();
-		mp = null;
-		stopForeground(true);
-		
-		setState(State.STOPPED);
+		if (mp != null) {
+			mp.stop();
+			mp.release();
+			mp = null;
+			stopForeground(true);
+
+			setState(State.STOPPED);
+		}
 	}
 }
