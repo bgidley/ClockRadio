@@ -3,6 +3,7 @@ package uk.co.gidley.clockRadio;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import uk.co.gidley.clockRadio.RadioPlayerService.State;
 import uk.co.gidley.clockRadio.RadioStationsList.OnSelectStationListener;
 import android.app.Activity;
 import android.content.ComponentName;
@@ -43,7 +44,6 @@ public class ClockRadioActivity extends Activity implements
 	private RadioPlayerService mRadioPlayerService;
 	boolean mBound;
 
-	
 	private OnClickListener mOnPlayListener = new OnClickListener() {
 		public void onClick(View v) {
 			new Thread(new Runnable() {
@@ -90,40 +90,59 @@ public class ClockRadioActivity extends Activity implements
 						public void propertyChange(PropertyChangeEvent event) {
 							if (event.getPropertyName().equals("State")) {
 								final Button button = (Button) findViewById(R.id.start);
-								if (event.getNewValue().equals(
-										RadioPlayerService.State.PLAYING)) {
-									runOnUiThread(new Runnable() {
-										public void run() {
-											button.setText(R.string.stop);
-										}
-									});
-								} else if (event.getNewValue().equals(
-										RadioPlayerService.State.LOADING)) {
-									runOnUiThread(new Runnable() {
-										public void run() {
-											button.setText(R.string.loading);
-										}
-									});
-								} else if (event.getNewValue().equals(
-										RadioPlayerService.State.STOPPED)) {
-									runOnUiThread(new Runnable() {
-										public void run() {
-											button.setText(R.string.start);
-										}
-									});
-								}
+
+								RadioPlayerService.State state = (State) event
+										.getNewValue();
+								updatePlayButton(button, state);
 							}
 						}
 					});
-
 			Log.d(TAG, "Bound Service");
+
+			runOnUiThread(new Runnable() {
+
+				public void run() {
+
+					Button playButton = (Button) findViewById(R.id.start);
+					updatePlayButton(playButton, mRadioPlayerService.getState());
+
+				}
+			});
 		}
 
 		public void onServiceDisconnected(ComponentName className) {
 			mRadioPlayerService = null;
-
 		}
 	};
+
+	private void updatePlayButton(final Button button,
+			RadioPlayerService.State state) {
+		switch (state) {
+		case PLAYING:
+			runOnUiThread(new Runnable() {
+				public void run() {
+					button.setText(R.string.stop);
+				}
+			});
+			break;
+
+		case LOADING:
+			runOnUiThread(new Runnable() {
+				public void run() {
+					button.setText(R.string.loading);
+				}
+			});
+			break;
+
+		case STOPPED:
+			runOnUiThread(new Runnable() {
+				public void run() {
+					button.setText(R.string.start);
+				}
+			});
+			break;
+		}
+	}
 
 	private String stationUri;
 
@@ -132,16 +151,15 @@ public class ClockRadioActivity extends Activity implements
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		
+
 		Button playButton = (Button) findViewById(R.id.start);
 		playButton.setOnClickListener(mOnPlayListener);
 		Button stopButton = (Button) findViewById(R.id.stop);
 		stopButton.setOnClickListener(mOnStopListener);
 		Button refreshStations = (Button) findViewById(R.id.refreshStations);
 		refreshStations.setOnClickListener(mRefreshVideoListener);
-		
 	}
-	
+
 	public void onSelectStationListener(String stationUri) {
 		this.stationUri = stationUri;
 	}

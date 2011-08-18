@@ -2,7 +2,7 @@
 <resources>
     <string name="hello">Hello World, ClockRadioActivity!</string>
     <string name="app_name">ClockRadio</string>
-    <string name="local_service_started">1</string>
+    <string name="local_service_started">Clock Radio Playing</string>
     <string name="local_service_label">Radio Player</string>
     <string name="stop">Stop</string>
     <string name="start">Start</string>

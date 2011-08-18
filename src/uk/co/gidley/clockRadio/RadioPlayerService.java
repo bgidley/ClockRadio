@@ -31,7 +31,7 @@ public class RadioPlayerService extends Service {
 	public static final String STOP = "STOP";
 
 	private final IBinder mBinder = new LocalBinder();
-	private NotificationManager mNM;
+	private NotificationManager notificationManager;
 	// Unique Identification Number for the Notification.
 	// We use it on Notification start, and to cancel it.
 	private int NOTIFICATION = R.string.local_service_started;
@@ -83,14 +83,19 @@ public class RadioPlayerService extends Service {
 
 	@Override
 	public void onCreate() {
-		mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		state = State.STOPPED;
 
 	}
 
 	@Override
 	public void onDestroy() {
+		hideNotification();
+	}
+	
+	private void hideNotification(){
 		// Cancel the persistent notification.
-		mNM.cancel(NOTIFICATION);
+		notificationManager.cancel(NOTIFICATION);
 	}
 
 	private void showNotification() {
@@ -110,6 +115,7 @@ public class RadioPlayerService extends Service {
 		// Set the info for the views that show in the notification panel.
 		notification.setLatestEventInfo(this,
 				getText(R.string.local_service_label), text, contentIntent);
+		notification.flags |= Notification.FLAG_ONGOING_EVENT;
 		startForeground(NOTIFICATION, notification);
 
 		Log.d(TAG, "Show Notification Complete");
@@ -194,7 +200,7 @@ public class RadioPlayerService extends Service {
 			mp.release();
 			mp = null;
 			stopForeground(true);
-
+			hideNotification();
 			setState(State.STOPPED);
 		}
 	}
