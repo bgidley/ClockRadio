@@ -29,7 +29,7 @@ public class RadioStationsProvider extends ContentProvider {
 	/**
 	 * The database version
 	 */
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 2;
 
 	private static final UriMatcher sUriMatcher;
 
@@ -38,10 +38,8 @@ public class RadioStationsProvider extends ContentProvider {
 
 	static {
 		sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-		sUriMatcher.addURI(RadioStations.AUTHORITY,
-				"Stations", STATIONS);
-		sUriMatcher.addURI(RadioStations.AUTHORITY,
-				"Stations/#", STATION_ID);
+		sUriMatcher.addURI(RadioStations.AUTHORITY, "Stations", STATIONS);
+		sUriMatcher.addURI(RadioStations.AUTHORITY, "Stations/#", STATION_ID);
 
 	}
 
@@ -63,7 +61,8 @@ public class RadioStationsProvider extends ContentProvider {
 		public void onCreate(SQLiteDatabase db) {
 			db.execSQL("CREATE TABLE " + RadioStations.TABLE_NAME + " ("
 					+ RadioStations.ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-					+ RadioStations.TITLE + " TEXT," + RadioStations.URL
+					+ RadioStations.TITLE + " TEXT,"
+					+ RadioStations.UNIQUE_NAME + " TEXT," + RadioStations.URL
 					+ " TEXT" + ");");
 		}
 
@@ -240,70 +239,75 @@ public class RadioStationsProvider extends ContentProvider {
 	public int update(Uri uri, ContentValues values, String selection,
 			String[] selectionArgs) {
 		// Opens the database object in "write" mode.
-        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
-        int count;
-        String finalWhere;
+		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+		int count;
+		String finalWhere;
 
-        // Does the update based on the incoming URI pattern
-        switch (sUriMatcher.match(uri)) {
+		// Does the update based on the incoming URI pattern
+		switch (sUriMatcher.match(uri)) {
 
-            // If the incoming URI matches the general notes pattern, does the update based on
-            // the incoming data.
-            case STATIONS:
+		// If the incoming URI matches the general notes pattern, does the
+		// update based on
+		// the incoming data.
+		case STATIONS:
 
-                // Does the update and returns the number of rows updated.
-                count = db.update(
-                    RadioStations.TABLE_NAME, // The database table name.
-                    values,                   // A map of column names and new values to use.
-                    selection,                    // The where clause column names.
-                    selectionArgs                 // The where clause column values to select on.
-                );
-                break;
+			// Does the update and returns the number of rows updated.
+			count = db.update(RadioStations.TABLE_NAME, // The database table
+														// name.
+					values, // A map of column names and new values to use.
+					selection, // The where clause column names.
+					selectionArgs // The where clause column values to select
+									// on.
+					);
+			break;
 
-            // If the incoming URI matches a single note ID, does the update based on the incoming
-            // data, but modifies the where clause to restrict it to the particular note ID.
-            case STATION_ID:
-                /*
-                 * Starts creating the final WHERE clause by restricting it to the incoming
-                 * note ID.
-                 */
-                finalWhere =
-                        RadioStations.ID +                              // The ID column name
-                        " = " +                                          // test for equality
-                        uri.getPathSegments().                           // the incoming note ID
-                            get(RadioStations.STATION_ID_OFFSET)
-                ;
+		// If the incoming URI matches a single note ID, does the update based
+		// on the incoming
+		// data, but modifies the where clause to restrict it to the particular
+		// ID.
+		case STATION_ID:
+			/*
+			 * Starts creating the final WHERE clause by restricting it to the
+			 * incoming note ID.
+			 */
+			finalWhere = RadioStations.ID + // The ID column name
+					" = " + // test for equality
+					uri.getPathSegments(). // the incoming note ID
+							get(RadioStations.STATION_ID_OFFSET);
 
-                // If there were additional selection criteria, append them to the final WHERE
-                // clause
-                if (selection !=null) {
-                    finalWhere = finalWhere + " AND " + selection;
-                }
+			// If there were additional selection criteria, append them to the
+			// final WHERE
+			// clause
+			if (selection != null) {
+				finalWhere = finalWhere + " AND " + selection;
+			}
 
+			// Does the update and returns the number of rows updated.
+			count = db.update(RadioStations.TABLE_NAME, // The database table
+														// name.
+					values, // A map of column names and new values to use.
+					finalWhere, // The final WHERE clause to use
+								// placeholders for whereArgs
+					selectionArgs // The where clause column values to select
+									// on, or
+					// null if the values are in the where argument.
+					);
+			break;
+		// If the incoming pattern is invalid, throws an exception.
+		default:
+			throw new IllegalArgumentException("Unknown URI " + uri);
+		}
 
-                // Does the update and returns the number of rows updated.
-                count = db.update(
-                    RadioStations.TABLE_NAME, // The database table name.
-                    values,                   // A map of column names and new values to use.
-                    finalWhere,               // The final WHERE clause to use
-                                              // placeholders for whereArgs
-                    selectionArgs                 // The where clause column values to select on, or
-                                              // null if the values are in the where argument.
-                );
-                break;
-            // If the incoming pattern is invalid, throws an exception.
-            default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
-        }
+		/*
+		 * Gets a handle to the content resolver object for the current context,
+		 * and notifies it that the incoming URI changed. The object passes this
+		 * along to the resolver framework, and observers that have registered
+		 * themselves for the provider are notified.
+		 */
+		getContext().getContentResolver().notifyChange(uri, null);
 
-        /*Gets a handle to the content resolver object for the current context, and notifies it
-         * that the incoming URI changed. The object passes this along to the resolver framework,
-         * and observers that have registered themselves for the provider are notified.
-         */
-        getContext().getContentResolver().notifyChange(uri, null);
-
-        // Returns the number of rows updated.
-        return count;
+		// Returns the number of rows updated.
+		return count;
 	}
 
 }

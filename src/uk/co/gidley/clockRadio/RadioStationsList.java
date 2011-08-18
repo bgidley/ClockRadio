@@ -21,7 +21,6 @@ public class RadioStationsList extends ListFragment {
 		public void onSelectStationListener(String stationUri);
 	}
 
-	static final String[] COUNTRIES = new String[] { "Bob", "Jack", "Sally" };
 	private OnSelectStationListener stationSelectListener;
 
 	@Override

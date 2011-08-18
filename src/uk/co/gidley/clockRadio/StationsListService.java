@@ -15,6 +15,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import android.app.Service;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
@@ -28,7 +30,7 @@ public class StationsListService extends Service {
 		protected Boolean doInBackground(URI... urls) {
 			Log.d(TAG, "Starting Background load");
 			int count = urls.length;
-			
+
 			HttpClient httpclient = new DefaultHttpClient();
 
 			for (int i = 0; i < count; i++) {
@@ -36,24 +38,45 @@ public class StationsListService extends Service {
 				try {
 					HttpGet httpGet = new HttpGet(urls[i]);
 					HttpResponse response = httpclient.execute(httpGet);
-					InputStream in = response.getEntity().getContent(); 
+					InputStream in = response.getEntity().getContent();
 					BufferedReader reader = new BufferedReader(
 							new InputStreamReader(in));
 					String line = "";
 					while ((line = reader.readLine()) != null) {
 						Log.d(TAG, "Reading line:" + line);
-						if (!line.equals("Title,Url")) {
+						if (!line.equals("UniqueName,Title,Url")) {
 							// Not Header line
 							String[] splitLine = line.split(",");
-							if (splitLine.length == 2) {
-								String title = splitLine[0];
-								String url = splitLine[1];
-								
+							if (splitLine.length == 3) {
+								String uniqueName = splitLine[0];
+								String title = splitLine[1];
+								String url = splitLine[2];
+
 								ContentValues item = new ContentValues();
+								item.put(RadioStations.UNIQUE_NAME, uniqueName);
 								item.put(RadioStations.TITLE, title);
 								item.put(RadioStations.URL, url);
-								getContentResolver().insert(RadioStations.CONTENT_URI, item);
-								Log.d(TAG, "Wrote content item:" + title);
+
+								Cursor station = getContentResolver().query(
+										RadioStations.CONTENT_URI,
+										new String[] { RadioStations.ID },
+										RadioStations.UNIQUE_NAME + " = ?",
+										new String[] { uniqueName }, null);
+								if (station.moveToFirst()) {
+									// Update
+									Uri updateUri = Uri.withAppendedPath(
+											RadioStations.CONTENT_URI,
+											station.getString(0));
+									getContentResolver().update(updateUri,
+											item, null, null);
+									Log.d(TAG, "Updated content item:" + title);
+								} else {
+									// Insert
+									getContentResolver().insert(
+											RadioStations.CONTENT_URI, item);
+									Log.d(TAG, "Wrote content item:" + title);
+								}
+
 							}
 						}
 					}
@@ -67,9 +90,11 @@ public class StationsListService extends Service {
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		
+
 		try {
-			new UpdateStationsList().execute(new URI("https://spreadsheets.google.com/spreadsheet/ccc?key=0Am_QxWmAHhuudDJyN1laV09fX0twc29JenllNGo4T0E&hl=en_GB&output=csv"));
+			new UpdateStationsList()
+					.execute(new URI(
+							"https://spreadsheets.google.com/spreadsheet/ccc?key=0Am_QxWmAHhuudDJyN1laV09fX0twc29JenllNGo4T0E&hl=en_GB&output=csv"));
 		} catch (URISyntaxException e) {
 			Log.e(TAG, "unable to parse uri", e);
 		}
