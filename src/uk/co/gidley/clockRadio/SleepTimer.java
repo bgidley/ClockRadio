@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.TimePicker.OnTimeChangedListener;
 
 public class SleepTimer extends Fragment {
 
@@ -30,6 +31,9 @@ public class SleepTimer extends Fragment {
 	private TimePicker timePicker;
 	private final Handler sleepHandler = new Handler();
 	private TextView sleepTimerDisplay;
+	
+	private int hourOfDay;
+	private int minute;
 
 	private ServiceConnection mConnection = new ServiceConnection() {
 		public void onServiceConnected(ComponentName className, IBinder service) {
@@ -54,8 +58,8 @@ public class SleepTimer extends Fragment {
 					Calendar stopTime = Calendar.getInstance();
 					Calendar now = Calendar.getInstance();
 
-					stopTime.set(Calendar.HOUR, timePicker.getCurrentHour());
-					stopTime.set(Calendar.MINUTE, timePicker.getCurrentMinute());
+					stopTime.set(Calendar.HOUR, hourOfDay);
+					stopTime.set(Calendar.MINUTE, minute);
 					stopTime.set(Calendar.SECOND, 0);
 					if (stopTime.before(now)) {
 						stopTime.roll(Calendar.DAY_OF_MONTH, 1);
@@ -93,6 +97,13 @@ public class SleepTimer extends Fragment {
 
 		}
 	};
+	private OnTimeChangedListener onTimeChangedListener = new OnTimeChangedListener() {
+		
+		public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
+			SleepTimer.this.hourOfDay = hourOfDay;
+			SleepTimer.this.minute = minute;
+		}
+	};
 
 	@Override
 	public void onStart() {
@@ -117,6 +128,10 @@ public class SleepTimer extends Fragment {
 		Button sleepButton = (Button) view.findViewById(R.id.sleep);
 		sleepButton.setOnClickListener(mOnClickSleepListener);
 		timePicker = (TimePicker) view.findViewById(R.id.sleepTime);
+		timePicker.setIs24HourView(true);
+		timePicker.setOnTimeChangedListener(onTimeChangedListener);
+		this.hourOfDay=timePicker.getCurrentHour();
+		this.minute=timePicker.getCurrentMinute();
 		sleepTimerDisplay = (TextView) view.findViewById(R.id.sleepTimeDisplay);
 		return view;
 	}

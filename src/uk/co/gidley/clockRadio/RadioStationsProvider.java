@@ -263,9 +263,6 @@ public class RadioStationsProvider extends ContentProvider {
             // If the incoming URI matches a single note ID, does the update based on the incoming
             // data, but modifies the where clause to restrict it to the particular note ID.
             case STATION_ID:
-                // From the incoming URI, get the note ID
-                String noteId = uri.getPathSegments().get(RadioStations.STATION_ID_OFFSET);
-
                 /*
                  * Starts creating the final WHERE clause by restricting it to the incoming
                  * note ID.

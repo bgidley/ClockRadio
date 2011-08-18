@@ -3,7 +3,7 @@
       package="uk.co.gidley.clockRadio"
       android:versionCode="1"
       android:versionName="1.0">
-    <uses-sdk android:minSdkVersion="12" />
+    <uses-sdk android:minSdkVersion="13" />
     <supports-screens android:xlargeScreens="true" android:largeScreens="false" android:normalScreens="false" android:smallScreens="false" android:resizeable="false"></supports-screens>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
     
