@@ -31,7 +31,7 @@ public class SleepTimer extends Fragment {
 	private TimePicker timePicker;
 	private final Handler sleepHandler = new Handler();
 	private TextView sleepTimerDisplay;
-	
+
 	private int hourOfDay;
 	private int minute;
 
@@ -69,10 +69,16 @@ public class SleepTimer extends Fragment {
 					sleepHandler.removeCallbacksAndMessages(SLEEPYTIME);
 					sleepHandler.postAtTime(
 							new Runnable() {
-
 								public void run() {
 									Log.d(TAG, "Stopping playback");
 									mRadioPlayerService.stop();
+									getActivity().runOnUiThread(new Runnable() {
+
+										public void run() {
+											sleepTimerDisplay
+													.setVisibility(View.INVISIBLE);
+										}
+									});
 								}
 							},
 							SLEEPYTIME,
@@ -84,7 +90,6 @@ public class SleepTimer extends Fragment {
 							.toString();
 
 					v.post(new Runnable() {
-
 						public void run() {
 
 							sleepTimerDisplay.setText("Sleep Time:"
@@ -98,10 +103,17 @@ public class SleepTimer extends Fragment {
 		}
 	};
 	private OnTimeChangedListener onTimeChangedListener = new OnTimeChangedListener() {
-		
+
 		public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
 			SleepTimer.this.hourOfDay = hourOfDay;
 			SleepTimer.this.minute = minute;
+		}
+	};
+	private OnClickListener onClickSleepCancelListener = new OnClickListener() {
+
+		public void onClick(View v) {
+			sleepHandler.removeCallbacksAndMessages(SLEEPYTIME);
+			sleepTimerDisplay.setVisibility(View.INVISIBLE);
 		}
 	};
 
@@ -130,9 +142,12 @@ public class SleepTimer extends Fragment {
 		timePicker = (TimePicker) view.findViewById(R.id.sleepTime);
 		timePicker.setIs24HourView(true);
 		timePicker.setOnTimeChangedListener(onTimeChangedListener);
-		this.hourOfDay=timePicker.getCurrentHour();
-		this.minute=timePicker.getCurrentMinute();
+		this.hourOfDay = timePicker.getCurrentHour();
+		this.minute = timePicker.getCurrentMinute();
 		sleepTimerDisplay = (TextView) view.findViewById(R.id.sleepTimeDisplay);
+		Button sleepCancelButton = (Button) view
+				.findViewById(R.id.cancel_sleep);
+		sleepCancelButton.setOnClickListener(onClickSleepCancelListener);
 		return view;
 	}
 

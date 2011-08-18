@@ -10,4 +10,5 @@
     <string name="playing">Playing</string>
     <string name="refreshStations">Refresh Stations</string>
     <string name="sleepTimerButtonTitle">Set Sleep Timer</string>
+    <string name="cancelSleep">Cancel Sleep</string>
 </resources>

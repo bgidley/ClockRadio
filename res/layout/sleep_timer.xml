@@ -5,6 +5,7 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent">
     <Button android:text="@string/sleepTimerButtonTitle" android:id="@+id/sleep" android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
+    <Button android:id="@+id/cancel_sleep" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/cancelSleep"></Button>
     <TextView android:text="TextView" android:id="@+id/sleepTimeDisplay" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
     <TimePicker android:layout_height="wrap_content" android:id="@+id/sleepTime" android:layout_width="wrap_content" android:layout_below="@+id/start" android:layout_alignLeft="@+id/start"></TimePicker>
     
