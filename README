@@ -8,9 +8,9 @@ It only works on Android 3 tablets (as I wanted to play with the fragments API) 
 If you want more stations added add an issue here and I can add them if they have a suitable stream.
 
 
-Developer Notes
+# Developer Notes
 
- The build is using maven you need to
+The build is using maven you need to
  
- * Set your ANDROID_HOME
- * Follow instructions at https://github.com/mosabua/maven-android-sdk-deployer to set up the Android 3 SDK
+* Set your ANDROID_HOME
+* Follow instructions at https://github.com/mosabua/maven-android-sdk-deployer to set up the Android 3 SDK
