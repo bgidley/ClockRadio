@@ -18,10 +18,13 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.util.Log;
 
 public class RadioPlayerService extends Service {
@@ -65,6 +68,10 @@ public class RadioPlayerService extends Service {
 
 	private MediaPlayer mp;
 
+	private PowerManager pm;
+
+	private WakeLock wl;
+
 	/**
 	 * Class for clients to access. Because we know this service always runs in
 	 * the same process as its clients, we don't need to deal with IPC.
@@ -83,6 +90,7 @@ public class RadioPlayerService extends Service {
 
 	@Override
 	public void onCreate() {
+		pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
 		notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 		state = State.STOPPED;
 
@@ -90,10 +98,11 @@ public class RadioPlayerService extends Service {
 
 	@Override
 	public void onDestroy() {
+		releaseWakeLock();
 		hideNotification();
 	}
-	
-	private void hideNotification(){
+
+	private void hideNotification() {
 		// Cancel the persistent notification.
 		notificationManager.cancel(NOTIFICATION);
 	}
@@ -119,6 +128,7 @@ public class RadioPlayerService extends Service {
 		startForeground(NOTIFICATION, notification);
 
 		Log.d(TAG, "Show Notification Complete");
+
 	}
 
 	public void play(String playerUri) throws UnableToPlayException {
@@ -166,6 +176,9 @@ public class RadioPlayerService extends Service {
 			setState(State.STOPPED);
 			Log.e(TAG, "Unable to open stream", e);
 		}
+
+		wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
+		wl.acquire();
 	}
 
 	private String parsePls(String playerUri) {
@@ -201,7 +214,19 @@ public class RadioPlayerService extends Service {
 			mp = null;
 			stopForeground(true);
 			hideNotification();
+			releaseWakeLock();
+
 			setState(State.STOPPED);
+		}
+	}
+
+	private void releaseWakeLock() {
+		if (wl != null) {
+			if (wl.isHeld()) {
+				Log.d(TAG, "Wake Lock Released");
+				wl.release();
+			}
+			wl = null;
 		}
 	}
 }
