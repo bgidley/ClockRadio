@@ -2,3 +2,7 @@ bin
 gen
 .DS_Store
 proguard
+target
+*.ipr
+*.iws
+*.iml

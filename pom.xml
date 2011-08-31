@@ -7,31 +7,22 @@
     <artifactId>clockRadio-parent</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>clockRadio - Parent</name>
+    <name>clockRadio Parent</name>
 
     <modules>
         <module>clockRadio</module>
-        <module>clockRadio-it</module>
+       	<!--<module>clockRadio-it</module>-->
     </modules>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.google.android</groupId>
-                <artifactId>android</artifactId>
-                <version>
-                 2.1.2
-                                </version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.google.android</groupId>
-                <artifactId>android-test</artifactId>
-                <version>
-                 2.1.2
-                                </version>
-                <scope>provided</scope>
-            </dependency>
+  				<groupId>android</groupId>
+ 				 <artifactId>android</artifactId>
+				  <version>3.2_r1</version>
+ 			 <scope>provided</scope>
+</dependency>
+            
 
             <!-- Androlog is a logging and reporting library for Android -->
             <dependency>
@@ -63,7 +54,7 @@
                         <resourceDirectory>${project.basedir}/res</resourceDirectory>
                         <nativeLibrariesDirectory>${project.basedir}/src/main/native</nativeLibrariesDirectory>
                         <sdk>
-                            <platform>7</platform>
+                            <platform>13</platform>
                         </sdk>
                                                 <deleteConflictingFiles>true</deleteConflictingFiles>
                         <undeployBeforeDeploy>true</undeployBeforeDeploy>
