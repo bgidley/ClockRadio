@@ -1,0 +1,8 @@
+Clock Radio
+
+This is the Android Clock Radio project. It is a simple application to 'scratch an itch' - I wanted 
+to be able to listen the radio in a hotel and have it turn off via a sleep timer. This is what this does...
+
+It only works on Android 3 tablets (as I wanted to play with the fragments API) and I have only tested it on an Asus.
+
+If you want more stations added add an issue here and I can add them if they have a suitable stream.
