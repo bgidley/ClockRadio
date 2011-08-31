@@ -53,16 +53,14 @@ public class SleepTimer extends Fragment {
 
 				public void run() {
 					Log.d(TAG, "Started creating sleep event");
-					// Read the stop time NOTE current doesn't handle going
-					// passed midnight.
 					Calendar stopTime = Calendar.getInstance();
 					Calendar now = Calendar.getInstance();
 
-					stopTime.set(Calendar.HOUR, hourOfDay);
+					stopTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
 					stopTime.set(Calendar.MINUTE, minute);
 					stopTime.set(Calendar.SECOND, 0);
 					if (stopTime.before(now)) {
-						stopTime.roll(Calendar.DAY_OF_MONTH, 1);
+						stopTime.add(Calendar.DATE, 1);
 					}
 
 					Log.d(TAG, "Scheduling Handler at :" + stopTime.getTime());
@@ -107,6 +105,7 @@ public class SleepTimer extends Fragment {
 		public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
 			SleepTimer.this.hourOfDay = hourOfDay;
 			SleepTimer.this.minute = minute;
+			Log.d(TAG, "Time:" +hourOfDay +":" + minute);
 		}
 	};
 	private OnClickListener onClickSleepCancelListener = new OnClickListener() {
@@ -140,7 +139,6 @@ public class SleepTimer extends Fragment {
 		Button sleepButton = (Button) view.findViewById(R.id.sleep);
 		sleepButton.setOnClickListener(mOnClickSleepListener);
 		timePicker = (TimePicker) view.findViewById(R.id.sleepTime);
-		timePicker.setIs24HourView(true);
 		timePicker.setOnTimeChangedListener(onTimeChangedListener);
 		this.hourOfDay = timePicker.getCurrentHour();
 		this.minute = timePicker.getCurrentMinute();

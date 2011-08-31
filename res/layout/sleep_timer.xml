@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:orientation="vertical"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent">
-    <Button android:text="@string/sleepTimerButtonTitle" android:id="@+id/sleep" android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
-    <Button android:id="@+id/cancel_sleep" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/cancelSleep"></Button>
-    <TextView android:text="TextView" android:id="@+id/sleepTimeDisplay" android:layout_width="wrap_content" android:layout_height="wrap_content"></TextView>
-    <TimePicker android:layout_height="wrap_content" android:id="@+id/sleepTime" android:layout_width="wrap_content" android:layout_below="@+id/start" android:layout_alignLeft="@+id/start"></TimePicker>
-    
-</LinearLayout>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="horizontal" android:layout_width="match_parent"
+	android:layout_height="match_parent">
+	<Button android:text="@string/sleepTimerButtonTitle" android:id="@+id/sleep"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
+	<TimePicker android:layout_width="wrap_content" android:id="@+id/sleepTime"
+		android:layout_height="wrap_content" android:layout_below="@+id/sleep"
+		android:layout_alignParentLeft="true" android:layout_marginTop="42dp"></TimePicker>
+	<Button android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:text="@string/cancelSleep"
+		android:id="@+id/cancel_sleep" android:layout_alignParentTop="true"
+		android:layout_toRightOf="@+id/sleep"></Button>
+	<TextView android:text="TextView" android:id="@+id/sleepTimeDisplay"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:layout_below="@id/sleepTime" android:visibility="invisible"></TextView>
+
+
+</RelativeLayout>
