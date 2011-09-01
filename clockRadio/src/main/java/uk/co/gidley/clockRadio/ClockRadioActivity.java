@@ -3,6 +3,8 @@ package uk.co.gidley.clockRadio;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import roboguice.activity.RoboActivity;
+import roboguice.inject.InjectView;
 import uk.co.gidley.clockRadio.RadioPlayerService.State;
 import uk.co.gidley.clockRadio.RadioStationsList.OnSelectStationListener;
 import android.app.Activity;
@@ -20,10 +22,18 @@ import android.widget.Toast;
 
 import com.flurry.android.FlurryAgent;
 
-public class ClockRadioActivity extends Activity implements
+public class ClockRadioActivity extends RoboActivity implements
 		OnSelectStationListener {
 
-	@Override
+    @InjectView(R.id.start)
+    private Button playButton;
+    @InjectView(R.id.stop)
+    private Button stopButton;
+    @InjectView(R.id.refreshStations)
+    private Button refreshStations;
+
+
+    @Override
 	protected void onStart() {
 
         Log.init(this);
@@ -91,11 +101,9 @@ public class ClockRadioActivity extends Activity implements
 					.addPropertyChangeListener(new PropertyChangeListener() {
 						public void propertyChange(PropertyChangeEvent event) {
 							if (event.getPropertyName().equals("State")) {
-								final Button button = (Button) findViewById(R.id.start);
-
 								RadioPlayerService.State state = (State) event
 										.getNewValue();
-								updatePlayButton(button, state);
+								updatePlayButton(state);
 							}
 						}
 					});
@@ -105,8 +113,7 @@ public class ClockRadioActivity extends Activity implements
 
 				public void run() {
 
-					Button playButton = (Button) findViewById(R.id.start);
-					updatePlayButton(playButton, mRadioPlayerService.getState());
+					updatePlayButton(mRadioPlayerService.getState());
 
 				}
 			});
@@ -117,13 +124,13 @@ public class ClockRadioActivity extends Activity implements
 		}
 	};
 
-	private void updatePlayButton(final Button button,
+	private void updatePlayButton(
 			RadioPlayerService.State state) {
 		switch (state) {
 		case PLAYING:
 			runOnUiThread(new Runnable() {
 				public void run() {
-					button.setText(R.string.stop);
+					playButton.setText(R.string.stop);
 				}
 			});
 			break;
@@ -131,7 +138,7 @@ public class ClockRadioActivity extends Activity implements
 		case LOADING:
 			runOnUiThread(new Runnable() {
 				public void run() {
-					button.setText(R.string.loading);
+					playButton.setText(R.string.loading);
 				}
 			});
 			break;
@@ -139,7 +146,7 @@ public class ClockRadioActivity extends Activity implements
 		case STOPPED:
 			runOnUiThread(new Runnable() {
 				public void run() {
-					button.setText(R.string.start);
+					playButton.setText(R.string.start);
 				}
 			});
 			break;
@@ -154,12 +161,9 @@ public class ClockRadioActivity extends Activity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
-		Button playButton = (Button) findViewById(R.id.start);
-		playButton.setOnClickListener(mOnPlayListener);
-		Button stopButton = (Button) findViewById(R.id.stop);
-		stopButton.setOnClickListener(mOnStopListener);
-		Button refreshStations = (Button) findViewById(R.id.refreshStations);
-		refreshStations.setOnClickListener(mRefreshVideoListener);
+        playButton.setOnClickListener(mOnPlayListener);
+        stopButton.setOnClickListener(mOnStopListener);
+        refreshStations.setOnClickListener(mRefreshVideoListener);
 	}
 
 	public void onSelectStationListener(String stationUri) {
