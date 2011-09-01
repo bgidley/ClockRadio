@@ -14,3 +14,6 @@ The build is using maven you need to
  
 * Set your ANDROID_HOME
 * Follow instructions at https://github.com/mosabua/maven-android-sdk-deployer to set up the Android 3 SDK
+* Install jar in nonRepoLibs into your local repo
+
+mvn install:install-file -Dfile=nonRepoLibs/FlurryAgent-1.0.jar -DartifactId=FlurryAgent -DgroupId=com.flurry -Dversion=1.0 -Dpackaging=jar
