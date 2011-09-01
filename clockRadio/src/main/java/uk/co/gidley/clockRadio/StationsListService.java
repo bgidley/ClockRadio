@@ -20,7 +20,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
+import de.akquinet.android.androlog.Log;
 
 public class StationsListService extends Service {
 

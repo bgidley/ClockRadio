@@ -12,7 +12,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
+import de.akquinet.android.androlog.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -25,6 +25,8 @@ public class ClockRadioActivity extends Activity implements
 
 	@Override
 	protected void onStart() {
+
+        Log.init(this);
 		bindService(new Intent(ClockRadioActivity.this,
 				RadioPlayerService.class), mConnection,
 				Context.BIND_AUTO_CREATE);

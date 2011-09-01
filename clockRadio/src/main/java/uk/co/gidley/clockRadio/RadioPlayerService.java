@@ -25,7 +25,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
-import android.util.Log;
+import de.akquinet.android.androlog.Log;
 
 public class RadioPlayerService extends Service {
 
