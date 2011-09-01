@@ -25,7 +25,6 @@ public class RadioStationsList extends ListFragment {
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 
 		Cursor cursor = getActivity().managedQuery(RadioStations.CONTENT_URI,

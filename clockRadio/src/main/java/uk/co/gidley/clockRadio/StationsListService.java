@@ -21,8 +21,9 @@ import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
 import de.akquinet.android.androlog.Log;
+import roboguice.service.RoboService;
 
-public class StationsListService extends Service {
+public class StationsListService extends RoboService {
 
 	private class UpdateStationsList extends AsyncTask<URI, Integer, Boolean> {
 
