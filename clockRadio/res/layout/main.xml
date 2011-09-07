@@ -38,8 +38,6 @@
                       android:layout_height="wrap_content" android:id="@+id/sleepTimer"></fragment>
             <Button android:text="@string/start" android:id="@+id/start"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
-            <Button android:text="@string/stop" android:id="@+id/stop"
-                    android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
             <Button android:text="@string/refreshStations" android:id="@+id/refreshStations"
                     android:layout_width="wrap_content" android:layout_height="wrap_content"></Button>
         </LinearLayout>

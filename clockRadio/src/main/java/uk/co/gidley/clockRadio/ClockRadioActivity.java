@@ -40,10 +40,9 @@ public class ClockRadioActivity extends RoboActivity implements
 
     @InjectView(R.id.start)
     private Button playButton;
-    @InjectView(R.id.stop)
-    private Button stopButton;
     @InjectView(R.id.refreshStations)
     private Button refreshStations;
+    private State state;
 
 
     @Override
@@ -73,15 +72,26 @@ public class ClockRadioActivity extends RoboActivity implements
         public void onClick(View v) {
             new Thread(new Runnable() {
                 public void run() {
-                    try {
-                        mRadioPlayerService.play(stationUri);
-                    } catch (UnableToPlayException e) {
-                        runOnUiThread(new Runnable() {
-                            public void run() {
-                                Toast.makeText(getBaseContext(),
-                                        "Unable to play", Toast.LENGTH_SHORT);
+
+                    switch (state) {
+                        case PLAYING:
+                            mRadioPlayerService.stop();
+                            break;
+                        case STOPPED:
+                            try {
+                                mRadioPlayerService.play(stationUri);
+                            } catch (UnableToPlayException e) {
+                                runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        Toast.makeText(getBaseContext(),
+                                                "Unable to play", Toast.LENGTH_SHORT);
+                                    }
+                                });
                             }
-                        });
+                            break;
+                        case LOADING:
+                            mRadioPlayerService.stop();
+                            break;
                     }
                 }
             }).start();
@@ -92,16 +102,6 @@ public class ClockRadioActivity extends RoboActivity implements
         public void onClick(View v) {
             startService(new Intent(getBaseContext(), StationsListService.class));
             Log.d(TAG, "Requested Stations list");
-        }
-    };
-
-    private OnClickListener mOnStopListener = new OnClickListener() {
-        public void onClick(final View v) {
-            new Thread(new Runnable() {
-                public void run() {
-                    mRadioPlayerService.stop();
-                }
-            }).start();
         }
     };
 
@@ -139,6 +139,7 @@ public class ClockRadioActivity extends RoboActivity implements
 
     private void updatePlayButton(
             RadioPlayerService.State state) {
+        this.state = state;
         switch (state) {
             case PLAYING:
                 runOnUiThread(new Runnable() {
@@ -177,7 +178,6 @@ public class ClockRadioActivity extends RoboActivity implements
         setContentView(R.layout.main);
 
         playButton.setOnClickListener(mOnPlayListener);
-        stopButton.setOnClickListener(mOnStopListener);
         refreshStations.setOnClickListener(mRefreshVideoListener);
     }
 
