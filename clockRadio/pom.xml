@@ -14,6 +14,7 @@
   ~    See the License for the specific language governing permissions and
   ~    limitations under the License.
   -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
@@ -90,7 +91,7 @@
                                         <lib>${rt.jar.path}</lib>
                                         <lib>${jsse.jar.path}</lib>
                                     </libs>
-                                    <obfuscate>true</obfuscate>
+                                    <obfuscate>false</obfuscate>
                                     <addMavenDescriptor>false</addMavenDescriptor>
                                     <proguardInclude>${project.basedir}/proguard.conf</proguardInclude>
                                 </configuration>
@@ -149,11 +150,11 @@
                         <artifactId>build-helper-maven-plugin</artifactId>
                         <configuration>
                             <artifacts>
-                                <artifact>
-                                    <file>${project.build.directory}/proguard_map.txt</file>
-                                    <type>map</type>
-                                    <classifier>release</classifier>
-                                </artifact>
+                                <!--<artifact>-->
+                                <!--<file>${project.build.directory}/proguard_map.txt</file>-->
+                                <!--<type>map</type>-->
+                                <!--<classifier>release</classifier>-->
+                                <!--</artifact>-->
                             </artifacts>
                         </configuration>
                         <executions>

@@ -8,3 +8,4 @@ target
 *.iml
 .project
 .settings
+*.apk
