@@ -85,6 +85,7 @@ public class SleepTimer extends Fragment {
                                 public void run() {
                                     Log.d(TAG, "Stopping playback");
                                     mRadioPlayerService.stop();
+                                    getActivity().stopService(new Intent(getActivity(), RadioPlayerService.class));
                                     getActivity().runOnUiThread(new Runnable() {
 
                                         public void run() {
