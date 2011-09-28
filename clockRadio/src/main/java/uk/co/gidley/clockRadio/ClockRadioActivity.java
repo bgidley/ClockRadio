@@ -24,7 +24,6 @@ import android.os.IBinder;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.Toast;
 import com.flurry.android.FlurryAgent;
 import de.akquinet.android.androlog.Log;
 import roboguice.activity.RoboActivity;
@@ -78,19 +77,13 @@ public class ClockRadioActivity extends RoboActivity implements
                             mRadioPlayerService.stop();
                             break;
                         case STOPPED:
-                            try {
-                                mRadioPlayerService.play(stationUri);
-                            } catch (UnableToPlayException e) {
-                                runOnUiThread(new Runnable() {
-                                    public void run() {
-                                        Toast.makeText(getBaseContext(),
-                                                "Unable to play", Toast.LENGTH_SHORT);
-                                    }
-                                });
-                            }
+                            Intent start = new Intent(getBaseContext(), RadioPlayerService.class);
+                            start.putExtra(RadioPlayerService.URL, stationUri);
+                            startService(start);
                             break;
                         case LOADING:
                             mRadioPlayerService.stop();
+                            getBaseContext().stopService(new Intent(getBaseContext(), RadioPlayerService.class));
                             break;
                     }
                 }

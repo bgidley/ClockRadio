@@ -44,6 +44,7 @@ import java.io.InputStreamReader;
 public class RadioPlayerService extends RoboService {
 
     private static final String TAG = "RadioPlayerService";
+    public static final String URL = "URL";
 
     private final IBinder mBinder = new LocalBinder();
 
@@ -112,6 +113,14 @@ public class RadioPlayerService extends RoboService {
     }
 
     @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+
+        String url = intent.getExtras().getString(URL);
+        this.play(url);
+        return START_STICKY;
+    }
+
+    @Override
     public void onDestroy() {
         releaseWakeLock();
         hideNotification();
@@ -147,54 +156,58 @@ public class RadioPlayerService extends RoboService {
 
     }
 
-    public void play(String playerUri) throws UnableToPlayException {
+    public void play(final String playerUri) {
+        new Thread(new Runnable() {
+            public void run() {
+                setState(State.LOADING);
 
-        setState(State.LOADING);
+                if (StringUtils.isEmpty(playerUri)) {
+                    setState(State.STOPPED);
+                    return;
+                }
 
-        if (StringUtils.isEmpty(playerUri)) {
-            setState(State.STOPPED);
-            throw new UnableToPlayException();
-        }
+                if (mp != null && mp.isPlaying()) {
+                    stop();
+                }
 
-        if (mp != null && mp.isPlaying()) {
-            stop();
-        }
+                // The uri could be a playlist file OR an actual stream check based on
+                // file extension (TODO review if better way of doing this)
+                String audioUri;
+                if (playerUri.endsWith(".pls")) {
+                    audioUri = parsePls(playerUri);
+                } else {
+                    audioUri = playerUri;
+                }
 
-        // The uri could be a playlist file OR an actual stream check based on
-        // file extension (TODO review if better way of doing this)
-        String audioUri;
-        if (playerUri.endsWith(".pls")) {
-            audioUri = parsePls(playerUri);
-        } else {
-            audioUri = playerUri;
-        }
+                if (StringUtils.isEmpty(audioUri)) {
+                    setState(State.STOPPED);
+                    return;
+                }
+                Log.d(TAG, "Audio URL:" + audioUri);
 
-        if (StringUtils.isEmpty(audioUri)) {
-            setState(State.STOPPED);
-            throw new UnableToPlayException();
-        }
-        Log.d(TAG, "Audio URL:" + audioUri);
+                mp = new MediaPlayer();
+                try {
+                    mp.setDataSource(audioUri);
+                    mp.prepare();
+                    mp.start();
+                    setState(State.PLAYING);
+                    showNotification();
+                } catch (IllegalArgumentException e) {
+                    setState(State.STOPPED);
+                    Log.e(TAG, "Unable to open stream", e);
+                } catch (IllegalStateException e) {
+                    setState(State.STOPPED);
+                    Log.e(TAG, "Unable to open stream", e);
+                } catch (IOException e) {
+                    setState(State.STOPPED);
+                    Log.e(TAG, "Unable to open stream", e);
+                }
 
-        mp = new MediaPlayer();
-        try {
-            mp.setDataSource(audioUri);
-            mp.prepare();
-            mp.start();
-            setState(State.PLAYING);
-            showNotification();
-        } catch (IllegalArgumentException e) {
-            setState(State.STOPPED);
-            Log.e(TAG, "Unable to open stream", e);
-        } catch (IllegalStateException e) {
-            setState(State.STOPPED);
-            Log.e(TAG, "Unable to open stream", e);
-        } catch (IOException e) {
-            setState(State.STOPPED);
-            Log.e(TAG, "Unable to open stream", e);
-        }
+                wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
+                wl.acquire();
+            }
+        }).start();
 
-        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
-        wl.acquire();
     }
 
     private String parsePls(String playerUri) {
